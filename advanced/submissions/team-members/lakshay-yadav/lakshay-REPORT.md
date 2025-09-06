@@ -148,3 +148,77 @@ A: Verified DateTime ordering and 10-min frequency; removed duplicates (none fou
 
 Q: How did you verify that your data pipeline produces consistent and reliable outputs for model training?  
 A: Checked deterministic sample counts, validated shapes/dtypes, logged window shapes for each (lookback, horizon), and reloaded saved .npy/scaler artifacts for consistency.
+
+---
+
+## ✅ Week 3: Neural Network Design & Baseline Training
+
+### 🧠 1. Model Architecture & Design
+
+Q: Which neural network architecture(s) did you choose for baseline forecasting (e.g., LSTM, GRU, TCN), and what motivated your selection?  
+A: Implemented three baseline sequence models: LSTM, GRU, and TCN. Chosen because they are standard architectures for time-series forecasting — LSTM/GRU capture sequential dependencies while TCN offers convolutional alternatives.
+
+Q: How did you structure your input sequences and targets for the chosen model(s)?  
+A: Inputs shaped as [batch, lookback, features]; targets shaped as [batch, horizon, target_dim]. Lookback = 144 (daily cycle), horizon = 6 (1 hour ahead).
+
+Q: What considerations did you make regarding the depth, number of units, and activation functions in your network?  
+A: Used 2 hidden layers with 64 units each. Dropout added for regularization. Standard non-linearities (tanh/ReLU) used per architecture defaults.
+
+---
+
+### 🏋️ 2. Training & Experimentation
+
+Q: Which loss function and optimizer did you use for training, and why are they suitable for this task?  
+A: MSE loss with Adam optimizer. MSE is standard for regression/forecasting and Adam provides stable convergence.
+
+Q: How did you incorporate regularization techniques such as Dropout or Batch Normalization, and what impact did they have?  
+A: Dropout (0.2) applied in TCN to reduce overfitting. LSTM/GRU relied on smaller hidden dimensions for regularization. Impact was stable validation loss and no severe overfitting.
+
+Q: What challenges did you encounter during training (e.g., overfitting, vanishing gradients), and how did you address them?  
+A: Initially observed very large RMSE values due to missing inverse scaling. Fixed by saving/loading scalers and applying inverse transform before computing original-space metrics.
+
+---
+
+### 📊 3. Evaluation & Metrics
+
+Q: Which metrics did you use to evaluate your model’s performance, and why are they appropriate for time-series forecasting?  
+A: RMSE, MAE, and R². RMSE penalizes large deviations, MAE provides interpretability, and R² measures variance explained.
+
+Q: How did you use MLflow (or another tool) to track your training experiments and results?  
+A: MLflow used to log hyperparameters, per-split metrics (scaled + original), plots, and final models with safe logging wrapper.
+
+Q: What insights did you gain from visualizing forecasted vs. actual power consumption for each zone?  
+A: Forecast plots confirmed models captured daily patterns but differed in accuracy; GRU consistently had lower error than LSTM, while TCN underperformed.
+
+---
+
+### 🔍 4. Model Interpretation & Insights
+
+Q: How did you interpret the learned patterns or feature importance in your neural network?  
+A: Focused on forecast error patterns. LSTM/GRU learned daily seasonality effectively. TCN struggled with long-term dependencies.
+
+Q: Did you observe any systematic errors or biases in your model predictions? How did you investigate and address them?  
+A: Yes. Errors inflated before fixing inverse scaling. After correction, predictions matched the original scale properly and metrics dropped to realistic ranges.
+
+Q: What trade-offs did you consider when selecting your final baseline model architecture?  
+A: Trade-off between sequential models (LSTM/GRU) vs. convolutional model (TCN). Chose GRU as strongest baseline (Test RMSE ≈ 1387) since it offered best performance with simpler training compared to LSTM.
+
+---
+
+## 📌 Week 3: Baseline Model Results
+
+The table below summarizes the baseline neural network experiments (LSTM, GRU, TCN) evaluated on the validation/test sets.  
+Models are sorted by validation RMSE, and tracked runs are logged in MLflow.
+
+| Model | Val_RMSE | Test_RMSE | Accuracy (%) |
+|-------|----------|-----------|--------------|
+| GRU   | 864.7    | 1387.8    | **93.55%** |
+| LSTM  | 1010.7   | 1612.2    | 92.50% |
+| TCN   | 2042.7   | 3316.6    | 84.58% |
+
+### 🔍 Observations
+- The best baseline model was **GRU**, achieving the lowest RMSE and the highest accuracy (**93.55%**).  
+- GRU showed ~1% higher accuracy than LSTM and nearly 9% higher than TCN.  
+- TCN underperformed, with the weakest accuracy (84.58%) and the largest errors.  
+- Validation and test RMSE were consistent, suggesting models generalize well.  
+- Forecast vs. actual plots confirmed GRU captured daily cycles best, while LSTM lagged slightly and TCN severely underestimated peaks.

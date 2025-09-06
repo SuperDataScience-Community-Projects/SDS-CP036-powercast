@@ -1,0 +1,29 @@
+{
+  "key": "lb144_hr6",
+  "model_name": "tcn",
+  "lookback": null,
+  "horizon": null,
+  "input_dim": 14,
+  "target_dim": 3,
+  "model": "TCN",
+  "hidden_dim": 64,
+  "num_layers": 2,
+  "optimizer": "Adam",
+  "loss_fn": "MSELoss",
+  "best_val_loss": 2042.7261196743923,
+  "val": {
+    "rmse": 2042.7261196743923,
+    "mae": 1618.8360595703125,
+    "r2": 0.7637907862663269
+  },
+  "test": {
+    "rmse": 3316.569161045794,
+    "mae": 2874.057861328125,
+    "r2": 0.4273451864719391
+  },
+  "artifacts": {
+    "checkpoint_path": "C:\\Users\\ABCD\\_ML projects(SDS)\\SDS-CP036-powercast\\advanced\\submissions\\team-members\\lakshay-yadav\\assets\\best_model_lb144_hr6_tcn.pt",
+    "forecast_plot": null
+  },
+  "timestamp": "2025-09-06 11:54:53.857119"
+}

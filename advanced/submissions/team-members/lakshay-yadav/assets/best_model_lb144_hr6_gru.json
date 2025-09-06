@@ -1,0 +1,29 @@
+{
+  "key": "lb144_hr6",
+  "model_name": "gru",
+  "lookback": null,
+  "horizon": null,
+  "input_dim": 14,
+  "target_dim": 3,
+  "model": "GRU",
+  "hidden_dim": 64,
+  "num_layers": 2,
+  "optimizer": "Adam",
+  "loss_fn": "MSELoss",
+  "best_val_loss": 864.7424110681746,
+  "val": {
+    "rmse": 864.7424110681746,
+    "mae": 617.0379638671875,
+    "r2": 0.9602686762809753
+  },
+  "test": {
+    "rmse": 1387.8229804265384,
+    "mae": 1052.5909423828125,
+    "r2": 0.8913432955741882
+  },
+  "artifacts": {
+    "checkpoint_path": "C:\\Users\\ABCD\\_ML projects(SDS)\\SDS-CP036-powercast\\advanced\\submissions\\team-members\\lakshay-yadav\\assets\\best_model_lb144_hr6_gru.pt",
+    "forecast_plot": null
+  },
+  "timestamp": "2025-09-06 11:54:53.851587"
+}
