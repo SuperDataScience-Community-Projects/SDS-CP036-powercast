@@ -67,3 +67,8 @@ splits/
 .dataloader_cache/
 .dl_cache/
 .tf_cache/
+
+
+# testing notebooks
+EDA.ipynb
+EDA3 copy.ipynb
