@@ -222,3 +222,64 @@ Models are sorted by validation RMSE, and tracked runs are logged in MLflow.
 - TCN underperformed, with the weakest accuracy (84.58%) and the largest errors.  
 - Validation and test RMSE were consistent, suggesting models generalize well.  
 - Forecast vs. actual plots confirmed GRU captured daily cycles best, while LSTM lagged slightly and TCN severely underestimated peaks.
+
+---
+
+## ✅ Week 4: Model Optimization & Interpretability
+
+### 🏗️ 1. Architecture Tuning & Experimentation
+
+Q: Which architectural changes (e.g., depth, number of units, bidirectionality, dilation) did you experiment with, and why?  
+A: Experiments included LSTM, GRU, and TCN architectures with variations in hidden size, number of layers, and dropout rates. For TCNs, different dilation factors were also tested to capture long-range dependencies. These changes were aimed at evaluating how recurrent vs. convolutional structures learn temporal demand patterns.
+
+Q: How did you decide on the final architecture for your deep learning model?  
+A: Configurations were compared on validation RMSE and R² in both scaled and original units. GRU and LSTM consistently yielded lower RMSE than TCN. The GRU-based setup was finalized due to stable training dynamics and stronger residual profiles.
+
+| config     | model     | orig_rmse  | orig_r2  |
+| ---------- | --------- | ---------- | -------- |
+| lb144_hr6  | GRUModel  | 612.06     | 0.9803   |
+| lb144_hr6  | LSTMModel | 630.34     | 0.9802   |
+| lb144_hr6  | TCNModel  | 1811.95    | 0.8280   |
+
+Q: What impact did these changes have on model performance and training stability?  
+A: Adding depth improved temporal representation but slowed convergence. Dropout and batch normalization stabilized deeper networks. GRUs converged faster and were less prone to gradient instability, while TCNs trained quickly but were less accurate.
+
+---
+
+### ⏸️ 2. Training Strategies & Regularization
+
+Q: How did you apply early stopping or learning rate scheduling during training?  
+A: Early stopping was used with patience on validation loss, and `ReduceLROnPlateau` was stepped once per epoch. StepLR was also applied for recurrent models, ensuring dynamic adjustment of learning rates based on validation performance.
+
+Q: What regularization techniques (e.g., Dropout, Batch Normalization) did you use, and how did they affect results?  
+A: Dropout was included in recurrent layers and convolutional blocks, and batch normalization was applied in TCNs. These reduced overfitting, improved generalization, and stabilized validation metrics.
+
+Q: How did you monitor and address overfitting or underfitting during optimization?  
+A: Training and validation curves were tracked alongside residual plots. Overfitting was countered with early stopping and dropout, while shallow underfitting cases were corrected by increasing hidden size or depth. Residual diagnostics confirmed generalization across all zones.
+
+---
+
+### 🧠 3. Model Interpretability
+
+Q: Which interpretability methods (e.g., SHAP, saliency maps, attention plots) did you use to understand your model’s predictions?  
+A: SHAP values and gradient-based saliency maps were applied. SHAP explained how weather features contributed over lookback windows, while saliency maps identified the timesteps and features most influential for forecasts.
+
+Q: What insights did you gain about feature importance or temporal dependencies from these methods?  
+A: Temperature and solar radiation were consistently the most influential features, particularly during peak load hours. Saliency confirmed that the most recent timesteps were critical to accurate predictions.
+
+Q: How did interpretability findings influence your modeling or feature engineering decisions?  
+A: Results validated the design of recent lag features and the prioritization of temperature and radiation as core drivers. These findings supported subsequent residual analysis and checkpoint selection.
+
+---
+
+### 📊 4. Error Analysis & Residuals
+
+Q: How did you analyze residuals and error distributions across different zones?  
+A: Predictions were aggregated and compared against validation targets. Global residual distributions, residuals vs. predictions, and per-target histograms were plotted. These checks ensured robust error diagnostics beyond RMSE.
+
+Q: Did you identify any systematic errors or biases in your model predictions? How did you address them?  
+A: Residuals were centered near zero, with slightly larger variance in Zone 3 under peak demand. This was mitigated by tuning hidden size in GRU models and applying early stopping to reduce bias toward Zone 1.
+
+Q: What steps did you take to ensure robust evaluation and fair comparison of model performance across different configurations?  
+A: Metrics were logged in both scaled and original units, best checkpoints per `(config, model)` were saved, and the leaderboard summarized RMSE and R². All results were tracked in MLflow, ensuring reproducibility and fair model comparison.
+
