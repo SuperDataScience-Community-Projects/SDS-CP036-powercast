@@ -1,0 +1,9 @@
+{
+  "Zone 1 Power Consumption": {
+    "model": "XGB",
+    "params": "{\"n_estimators\": 150, \"max_depth\": 3, \"learning_rate\": 0.1}",
+    "rmse": 8110.228076475289,
+    "mae": 6889.060427290506,
+    "mape": 27.722557592608428
+  }
+}
