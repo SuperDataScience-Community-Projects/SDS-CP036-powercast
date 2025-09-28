@@ -1,0 +1,5 @@
+{
+  "type": "xgb_lags",
+  "max_lag": 24,
+  "zone": "Zone 1 Power Consumption"
+}

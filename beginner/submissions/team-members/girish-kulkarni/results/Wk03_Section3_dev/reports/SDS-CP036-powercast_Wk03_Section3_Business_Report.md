@@ -1,29 +1,33 @@
-# SDS-CP036-powercast - Week 3 Section 3: Evaluation and Model Interpretation & Insights
+# SDS-CP036-powercast – Week 3 Section 3: Evaluation & Model Interpretation & Insights
 
-Profile: **dev**
+Profile: `dev`
 
-## Key Questions Answered
+### Key Questions Answered
 
-Q: How did you interpret feature importance or model coefficients, and what did they reveal about power consumption drivers?
-A: We used **two lenses**:
-- **Correlations with weather/solar inputs** (e.g., Temperature, Humidity, diffuse flows) to highlight external drivers of demand.
-- **Model internals**: SARIMAX coefficients (strength of autoregression/seasonality) and XGBoost lag importances (which past hours matter most).
-Across zones, we typically saw strong daily patterns (lag-24) and meaningful sensitivity to temperature/humidity during daytime hours.
+**Q: How did you interpret feature importance or model coefficients, and what did they reveal about power consumption drivers?**  
+**A:** We used three complementary lenses:
+- **Correlation lens:** Pearson correlations between zone demand and drivers (Temperature, Humidity, Wind Speed, solar diffuse flows). See `results/Wk03_Section3_dev/reports/feature_correlations.csv` and bar charts in `results/Wk03_Section3_dev/plots/`.
+- **SARIMAX coefficients:** Lightweight daily-seasonal model on hourly data to expose autoregressive and seasonal strength. See `results/Wk03_Section3_dev/reports/sarimax_coefficients.csv`.
+- **XGBoost lag importances:** Non‑linear model with 24 lag features; top bars highlight which recent hours matter most. See `results/Wk03_Section3_dev/reports/xgb_importances.csv` and plots in `results/Wk03_Section3_dev/plots/`.
 
-Q: Did you observe any systematic errors or biases in your model predictions? How did you investigate and address them?
-A: We examined **residuals by hour-of-day**. Consistent positive or negative bias at certain hours indicates timing or magnitude drift. Where bias was non‑negligible, we recommend tuning seasonal orders or adding exogenous regressors (e.g., temperature) or holiday indicators to reduce recurring misfit.
+**Q: Did you observe any systematic errors or biases in your model predictions? How did you investigate and address them?**  
+**A:** After forecasting the test window, we computed **residuals = Actual − Predicted** and averaged by **hour of day**. Consistent positive residuals at an hour mean we **under‑predict** that slot (peaks), negatives mean **over‑predict**. See `results/Wk03_Section3_dev/reports/residual_bias_by_hour.csv` and the bias charts in `results/Wk03_Section3_dev/plots/`.  
+**Actions:** If evening hours are under‑predicted, we (a) enable native‑freq SARIMAX in `final` to capture sharper cycles, (b) add more lags or calendar/weather features to XGBoost.
 
-Q: What trade-offs did you consider when selecting your final model(s) for each zone?
-A: Trade-offs balanced **accuracy vs. simplicity vs. speed**. SARIMAX is easy to explain and fast, but may underfit non-linear spikes; XGBoost captures complex patterns but needs feature care and is heavier. We keep **per-zone** models for clarity and operational accountability.
+**Q: What trade-offs did you consider when selecting your final model(s) for each zone?**  
+**A:** We balance **accuracy vs. simplicity vs. speed**:
+- **SARIMAX:** fast, explainable, strong daily cycle capture; may miss non‑linear spikes.
+- **XGBoost (lags):** better for non‑linear patterns; requires feature care and is heavier than SARIMAX.
+The chosen model per zone reflects the smallest footprint that meets accuracy needs, guided by the above diagnostics.
 
-[Feature Correlations - CSV](feature_correlations.csv)
-[Model Importances - CSV](model_importances.csv)
-[Residual Bias by Hour - CSV](residual_bias_by_hour.csv)
+### What this run produced
+- Correlation table: `results/Wk03_Section3_dev/reports/feature_correlations.csv`  
+- SARIMAX coefficients: `results/Wk03_Section3_dev/reports/sarimax_coefficients.csv`  
+- XGBoost importances: `results/Wk03_Section3_dev/reports/xgb_importances.csv`  
+- Residual bias by hour: `results/Wk03_Section3_dev/reports/residual_bias_by_hour.csv`  
+- Plots: `results/Wk03_Section3_dev/plots/`
 
----
-
-## Business Value Summary (Executive View)
-- **Explainability**: Clear links between demand and weather/time drivers build stakeholder trust.
-- **Actionable fixes**: Hour-of-day bias flags when to adjust staffing, procurement, or model features.
-- **Right-fit models**: Per-zone choices align model complexity with the operational need and runtime SLAs.
-- **Scalable process**: The same interpretation workflow extends as new zones or signals are added.
+### Business Value (Executive View)
+- **Clarity on drivers:** Leaders see which **weather/time signals** move demand.  
+- **Actionable fixes:** Bias‑by‑hour points to where to **tune models or operations** (staffing, procurement).  
+- **Confidence & defensibility:** Simple visuals + tables support decisions in reviews and audits.

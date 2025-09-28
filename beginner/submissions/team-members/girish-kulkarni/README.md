@@ -1,6 +1,6 @@
 # PowerCast – Project README
 
-_Generated/updated: 2025-08-23 06:15:08_
+_Generated/updated: 2025-09-21 00:14:57_
 
 ## Week 1 – Key Notebooks & Reports
 
@@ -124,6 +124,53 @@ _Generated/updated: 2025-08-23 06:15:08_
 
 ### Consolidated Week 3 Report
 - `SDS-CP036-powercast_Wk03_Report_Business.md`
+
+---
+
+## Week 4 – Key Notebooks & Reports
+
+### Hyperparameter Optimization
+- Notebook: `GirishK_PwrCst_Wk4_Section1-Business.ipynb`
+- Purpose: Grid/Optuna search over key hyperparameters; logs search results.
+- Expected reports (by profile):
+  - `dev` report: `results/Wk04_Section1_dev/reports/SDS-CP036-powercast_Wk04_Section1_Business_Report.md`
+  - `preprod` report: `results/Wk04_Section1_preprod/reports/SDS-CP036-powercast_Wk04_Section1_Business_Report.md`
+  - `final` report: `results/Wk04_Section1_final/reports/SDS-CP036-powercast_Wk04_Section1_Business_Report.md`
+
+### Retraining & Validation
+- Notebook: `GirishK_PwrCst_Wk4_Section2-Business.ipynb`
+- Purpose: Retrain best configs on full train; validate on hold‑out (or backtests).
+- Expected reports (by profile):
+  - `dev` report: `results/Wk04_Section2_dev/reports/SDS-CP036-powercast_Wk04_Section2_Business_Report.md`
+  - `preprod` report: `results/Wk04_Section2_preprod/reports/SDS-CP036-powercast_Wk04_Section2_Business_Report.md`
+  - `final` report: `results/Wk04_Section2_final/reports/SDS-CP036-powercast_Wk04_Section2_Business_Report.md`
+
+### Model Selection & Trade-offs
+- Notebook: `GirishK_PwrCst_Wk4_Section3-Business.ipynb`
+- Purpose: Compare tuned candidates; document accuracy vs cost vs interpretability.
+- Expected reports (by profile):
+  - `dev` report: `results/Wk04_Section3_dev/reports/SDS-CP036-powercast_Wk04_Section3_Business_Report.md`
+  - `preprod` report: `results/Wk04_Section3_preprod/reports/SDS-CP036-powercast_Wk04_Section3_Business_Report.md`
+  - `final` report: `results/Wk04_Section3_final/reports/SDS-CP036-powercast_Wk04_Section3_Business_Report.md`
+
+### Model Export & Deployment
+- Notebook: `GirishK_PwrCst_Wk4_Section4-Business.ipynb`
+- Purpose: Persist final artifacts (e.g., `models/Wk04_final/`), export runners/conda envs.
+- Expected reports (by profile):
+  - `dev` report: `results/Wk04_Section4_dev/reports/SDS-CP036-powercast_Wk04_Section4_Business_Report.md`
+  - `preprod` report: `results/Wk04_Section4_preprod/reports/SDS-CP036-powercast_Wk04_Section4_Business_Report.md`
+  - `final` report: `results/Wk04_Section4_final/reports/SDS-CP036-powercast_Wk04_Section4_Business_Report.md`
+
+### Monitoring & Maintenance Planning
+- Notebook: `GirishK_PwrCst_Wk4_Section5-Business.ipynb`
+- Purpose: Post‑deployment monitoring plan (drift, thresholds, alerting, retrain policy).
+- Expected reports (by profile):
+  - `dev` report: `results/Wk04_Section5_dev/reports/SDS-CP036-powercast_Wk04_Section5_Business_Report.md`
+  - `preprod` report: `results/Wk04_Section5_preprod/reports/SDS-CP036-powercast_Wk04_Section5_Business_Report.md`
+  - `final` report: `results/Wk04_Section5_final/reports/SDS-CP036-powercast_Wk04_Section5_Business_Report.md`
+
+### Consolidated Week 4 Report
+- `SDS-CP036-powercast_Wk04_Report_Business.md`
 
 ---
 

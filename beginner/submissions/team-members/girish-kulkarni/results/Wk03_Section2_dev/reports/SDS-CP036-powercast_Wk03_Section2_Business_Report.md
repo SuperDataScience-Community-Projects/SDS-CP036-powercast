@@ -1,29 +1,35 @@
-# SDS-CP036-powercast - Week 3 Section 2: MLflow Experiment Tracking
+# SDS-CP036-powercast – Week 3 Section 2: MLflow Experiment Tracking & Evaluation
 
-Profile: **dev**
+Profile: `dev`
 
-## Key Questions Answered
+### Key Questions Answered
 
-Q: Which evaluation metrics did you use to assess model performance, and why are they appropriate for this problem?
-A: We used RMSE, MAE, and MAPE. RMSE penalizes large errors (useful for risk), MAE provides an easy-to-explain average miss, and MAPE gives a percentage error that business users understand.
+**Q: Which evaluation metrics did you use to assess model performance, and why are they appropriate for this problem?**  
+**A:** We report **RMSE** (penalizes bigger errors), **MAE** (average absolute miss in original units), and **MAPE** (percent error, easy to read for business). Together they show both **size of mistakes** and **relative impact**.
 
-Q: How did you use MLflow to track your experiments and results?
-A: We created an MLflow experiment named powercast_wk03_s2 and logged, for each run:
-- Parameters: model name, resampling (hour/hourly), lags, seasonal order, profile tag, fast_mode flag.
-- Metrics: RMSE, MAE, MAPE for the evaluation window.
-- Artifacts: Actual vs Predicted plots per zone (in single hold-out), or per fold (in backtesting).
-Tracking runs locally via a file-based MLflow backend keeps everything versioned inside the repo (mlruns/).
+**Q: How did you use MLflow (or another tool) to track your experiments and results?**  
+**A:** When MLflow is available, we:
+- Create a local tracking store under `results/Wk03_Section2_dev/mlruns` and an experiment named `Powercast_Wk03_S2_dev`.
+- Log **parameters** (model type, seasonal settings, lags) and **metrics** (RMSE/MAE/MAPE) **per zone**.
+- Attach **artifacts** (actual vs predicted plots) to each run for quick visual review.  
+If MLflow isn’t available, we still write a consolidated CSV: `results/Wk03_Section2_dev/reports/experiment_metrics.csv`.
 
-Q: What insights did you gain from comparing actual vs. predicted curves for each zone?
-A: Visual comparisons showed how models capture shape (daily patterns), timing (peaks/valleys), and magnitude (over/under-bias). These help pinpoint which model is most reliable for each zone's operations.
+**Q: What insights did you gain from comparing actual vs. predicted curves for each zone?**  
+**A:** The plots in `results/Wk03_Section2_dev/plots/` make **pattern fit** transparent:
+- If the model tracks the **daily peaks and troughs**, it’s capturing seasonality.
+- If forecasts **lag changes** or **flatten peaks**, we switch/tune models (e.g., enable XGBoost for non‑linear spikes, use native‑freq SARIMAX in `final`).
 
-[Run Summary - CSV](mlflow_run_summary.csv)
+### What’s included in this run
+- Zones modeled: 1  
+- Data window: Last 90 days  
+- Test horizon: 7 day(s) × native steps/day = 1008 steps
 
----
+**Artifacts for reviewers**
+- Metrics table: `results/Wk03_Section2_dev/reports/experiment_metrics.csv`  
+- MLflow runs (if enabled): `results/Wk03_Section2_dev/mlruns`  
+- Visuals: `results/Wk03_Section2_dev/plots/`
 
-## Business Value Summary (Executive View)
-- Transparency & Trust: Every experiment is versioned with parameters, metrics, and plots so leaders can see how conclusions were reached.
-- Faster Decisions: Side-by-side comparisons shorten the path to a "champion" model for each zone.
-- Risk Control: Using RMSE/MAE/MAPE together prevents over-optimizing for a single metric and missing real-world errors.
-- Governance & Auditability: A local MLflow history (mlruns/) provides an auditable trail for compliance, board reviews, or customer assurances.
-- Scalability: Profiles (dev/preprod/final) let us move from quick smoke-tests to robust selection without changing code.
+### Business Value (Executive View)
+- **Traceability:** Every run is documented with parameters, metrics, and plots.  
+- **Faster decisions:** Side‑by‑side runs quickly identify the **champion** model per zone.  
+- **Governance‑ready:** Local MLflow store + CSV provide an audit trail suitable for leadership reviews.
