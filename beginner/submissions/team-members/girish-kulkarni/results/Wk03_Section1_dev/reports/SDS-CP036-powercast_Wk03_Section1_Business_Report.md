@@ -1,25 +1,36 @@
-# SDS-CP036-powercast - Week 3 Section 1: Model Selection & Training
+# SDS-CP036-powercast – Week 3 Section 1: Model Selection & Training
 
-Profile: **dev**
+Profile: `dev`
 
-## Key Questions Answered
+### Key Questions Answered
 
-Q: Which machine learning models did you choose for forecasting power consumption, and what motivated your selections?
-A: We compared a simple Baseline (naive), a statistical time-series model (SARIMAX) that handles daily seasonality, an optional Prophet for trend/seasonality decomposition, and an optional XGBoost model with lag features for non-linear patterns.
+**Q: Which machine learning models did you choose for forecasting power consumption, and what motivated your selections?**  
+**A:** This run uses a **toggle-based approach**:
+- **Baseline (Naïve):** Sets a minimum viable benchmark.
+- **SARIMAX:** Time‑series model capturing daily cycles; in `dev` we fit **hourly** to keep training fast and then upsample.
+- **Prophet** (optional): Captures trends/seasonality with built‑in holidays (if configured); fit hourly for speed and upsample.
+- **XGBoost (lags)** (optional): Non‑linear patterns via lag features (e.g., last 24 time steps), forecasted recursively.
 
-Q: How did you structure your models to handle the multi-zone prediction task (separate models vs. multi-output)?
-A: We trained separate models for each zone (Zone 1, Zone 2, Zone 3). This avoids cross-zone interference and keeps insights clear for operations teams.
+**Q: How did you structure your models to handle the multi-zone prediction task (separate models vs. multi-output)?**  
+**A:** We train **separate per‑zone models**. Zones differ in behavior; per‑zone models are easier to tune and explain. `dev` runs 1 zone(s) for speed; `preprod/final` scale to all three.
 
-Q: What challenges did you encounter during model training, and how did you address them?
-A: Runtime and data quirks were the main issues. We used hourly resampling and capped history for speed; we normalized column headers to remove double spaces; and we set lighter SARIMAX and XGBoost defaults for fast, reliable runs. Prophet is optional and limited in dev to keep execution snappy.
+**Q: What challenges did you encounter during model training, and how did you address them?**  
+**A:** The main risks are **runtime** and **stability** with 10‑minute data. We addressed them by:
+- Detecting native frequency and **downshifting to hourly** where appropriate.
+- Capping iterations and window sizes for heavy models.
+- Limiting CPU threads to avoid numeric library contention.
 
-[Model Comparison - CSV](model_comparison.csv)
+### What’s included in this run
 
----
+- Data window: Last 90 days  
+- Zones modeled: 1  
+- Test horizon: 7 day(s) × native steps/day = 1008 steps
 
-## Business Value Summary (Executive View)
-- Faster iteration: Profiles (dev/preprod/final) let us move from quick smoke-tests to rigorous selection without changing code.
-- Clear decisions: Side-by-side metrics identify the best model per zone; the final profile adds fold averages and stability checks.
-- Reduced risk: Using RMSE/MAE/MAPE together prevents optimizing for a single number that might miss operational errors.
-- Transparency: Reproducible splits, consistent resampling, and saved artifacts make results easy to explain to stakeholders.
-- Scalability: The per-zone approach and shared pipeline scale cleanly as new data or zones are added.
+**Artifacts**  
+- Model comparison (MAE/RMSE/MAPE): `results/Wk03_Section1_dev/reports/model_comparison.csv`  
+- Plots: saved under `results/Wk03_Section1_dev/plots/`
+
+### Business Value (Executive View)
+- Establishes a **clear accuracy baseline** and optional advanced models for uplift.  
+- Delivers **repeatable, time‑boxed** training to enable weekly iteration.  
+- Produces **defensible metrics and visuals** for leadership and ops decisions.
