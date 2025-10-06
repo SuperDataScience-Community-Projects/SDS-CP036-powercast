@@ -90,7 +90,7 @@ powercast/
 
 1. Clone the repository
 ```bash
-git clone [ADD_REPO_URL]
+git clone https://github.com/yadavLakshay/SDS-CP036-powercast/tree/main/advanced/submissions/team-members/lakshay-yadav
 cd powercast
 ```
 
