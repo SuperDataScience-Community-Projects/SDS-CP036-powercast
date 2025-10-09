@@ -1,0 +1,29 @@
+{
+  "key": "lb144_hr6",
+  "model_name": "lstm",
+  "lookback": null,
+  "horizon": null,
+  "input_dim": 14,
+  "target_dim": 3,
+  "model": "LSTM",
+  "hidden_dim": 64,
+  "num_layers": 2,
+  "optimizer": "Adam",
+  "loss_fn": "MSELoss",
+  "best_val_loss": 1010.6625302246047,
+  "val": {
+    "rmse": 1010.6625302246047,
+    "mae": 749.9290161132812,
+    "r2": 0.9480299353599548
+  },
+  "test": {
+    "rmse": 1612.2381182691345,
+    "mae": 1250.54052734375,
+    "r2": 0.8713248372077942
+  },
+  "artifacts": {
+    "checkpoint_path": "C:\\Users\\ABCD\\_ML projects(SDS)\\SDS-CP036-powercast\\advanced\\submissions\\team-members\\lakshay-yadav\\assets\\best_model_lb144_hr6_lstm.pt",
+    "forecast_plot": null
+  },
+  "timestamp": "2025-09-06 11:54:53.830436"
+}

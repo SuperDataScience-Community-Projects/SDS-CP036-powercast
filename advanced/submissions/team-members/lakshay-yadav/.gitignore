@@ -20,9 +20,15 @@ assets/*.parquet
 assets/*.feather
 assets/*.zip
 assets/*.gz
+# Ignore all PNGs in assets
 assets/*.png
+
+# But keep UI.png inside lakshay-yadav/assets
+!assets/UI.png
+
 assets/*.svg
 assets/*.pdf
+
 
 # Keep the Phase 1 summary JSON
 !assets/phase1_eda_summary.json
@@ -67,3 +73,10 @@ splits/
 .dataloader_cache/
 .dl_cache/
 .tf_cache/
+
+
+# testing notebooks
+EDA.ipynb
+EDA3 copy.ipynb
+week1 copy.ipynb
+eda4 copy.ipynb

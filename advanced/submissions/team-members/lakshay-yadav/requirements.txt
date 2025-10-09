@@ -27,3 +27,9 @@ torch==2.0.1
 torchvision==0.15.2
 torchaudio==2.0.2
 tensorboard==2.12.3   # optional
+
+# Progress Bars
+tqdm==4.66.5
+
+# Explainability
+shap==0.45.1

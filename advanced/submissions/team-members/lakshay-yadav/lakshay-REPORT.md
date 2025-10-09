@@ -148,3 +148,138 @@ A: Verified DateTime ordering and 10-min frequency; removed duplicates (none fou
 
 Q: How did you verify that your data pipeline produces consistent and reliable outputs for model training?  
 A: Checked deterministic sample counts, validated shapes/dtypes, logged window shapes for each (lookback, horizon), and reloaded saved .npy/scaler artifacts for consistency.
+
+---
+
+## ✅ Week 3: Neural Network Design & Baseline Training
+
+### 🧠 1. Model Architecture & Design
+
+Q: Which neural network architecture(s) did you choose for baseline forecasting (e.g., LSTM, GRU, TCN), and what motivated your selection?  
+A: Implemented three baseline sequence models: LSTM, GRU, and TCN. Chosen because they are standard architectures for time-series forecasting — LSTM/GRU capture sequential dependencies while TCN offers convolutional alternatives.
+
+Q: How did you structure your input sequences and targets for the chosen model(s)?  
+A: Inputs shaped as [batch, lookback, features]; targets shaped as [batch, horizon, target_dim]. Lookback = 144 (daily cycle), horizon = 6 (1 hour ahead).
+
+Q: What considerations did you make regarding the depth, number of units, and activation functions in your network?  
+A: Used 2 hidden layers with 64 units each. Dropout added for regularization. Standard non-linearities (tanh/ReLU) used per architecture defaults.
+
+---
+
+### 🏋️ 2. Training & Experimentation
+
+Q: Which loss function and optimizer did you use for training, and why are they suitable for this task?  
+A: MSE loss with Adam optimizer. MSE is standard for regression/forecasting and Adam provides stable convergence.
+
+Q: How did you incorporate regularization techniques such as Dropout or Batch Normalization, and what impact did they have?  
+A: Dropout (0.2) applied in TCN to reduce overfitting. LSTM/GRU relied on smaller hidden dimensions for regularization. Impact was stable validation loss and no severe overfitting.
+
+Q: What challenges did you encounter during training (e.g., overfitting, vanishing gradients), and how did you address them?  
+A: Initially observed very large RMSE values due to missing inverse scaling. Fixed by saving/loading scalers and applying inverse transform before computing original-space metrics.
+
+---
+
+### 📊 3. Evaluation & Metrics
+
+Q: Which metrics did you use to evaluate your model’s performance, and why are they appropriate for time-series forecasting?  
+A: RMSE, MAE, and R². RMSE penalizes large deviations, MAE provides interpretability, and R² measures variance explained.
+
+Q: How did you use MLflow (or another tool) to track your training experiments and results?  
+A: MLflow used to log hyperparameters, per-split metrics (scaled + original), plots, and final models with safe logging wrapper.
+
+Q: What insights did you gain from visualizing forecasted vs. actual power consumption for each zone?  
+A: Forecast plots confirmed models captured daily patterns but differed in accuracy; GRU consistently had lower error than LSTM, while TCN underperformed.
+
+---
+
+### 🔍 4. Model Interpretation & Insights
+
+Q: How did you interpret the learned patterns or feature importance in your neural network?  
+A: Focused on forecast error patterns. LSTM/GRU learned daily seasonality effectively. TCN struggled with long-term dependencies.
+
+Q: Did you observe any systematic errors or biases in your model predictions? How did you investigate and address them?  
+A: Yes. Errors inflated before fixing inverse scaling. After correction, predictions matched the original scale properly and metrics dropped to realistic ranges.
+
+Q: What trade-offs did you consider when selecting your final baseline model architecture?  
+A: Trade-off between sequential models (LSTM/GRU) vs. convolutional model (TCN). Chose GRU as strongest baseline (Test RMSE ≈ 1387) since it offered best performance with simpler training compared to LSTM.
+
+---
+
+## 📌 Week 3: Baseline Model Results
+
+The table below summarizes the baseline neural network experiments (LSTM, GRU, TCN) evaluated on the validation/test sets.  
+Models are sorted by validation RMSE, and tracked runs are logged in MLflow.
+
+| Model | Val_RMSE | Test_RMSE | Accuracy (%) |
+|-------|----------|-----------|--------------|
+| GRU   | 864.7    | 1387.8    | **93.55%** |
+| LSTM  | 1010.7   | 1612.2    | 92.50% |
+| TCN   | 2042.7   | 3316.6    | 84.58% |
+
+### 🔍 Observations
+- The best baseline model was **GRU**, achieving the lowest RMSE and the highest accuracy (**93.55%**).  
+- GRU showed ~1% higher accuracy than LSTM and nearly 9% higher than TCN.  
+- TCN underperformed, with the weakest accuracy (84.58%) and the largest errors.  
+- Validation and test RMSE were consistent, suggesting models generalize well.  
+- Forecast vs. actual plots confirmed GRU captured daily cycles best, while LSTM lagged slightly and TCN severely underestimated peaks.
+
+---
+
+## ✅ Week 4: Model Optimization & Interpretability
+
+### 🏗️ 1. Architecture Tuning & Experimentation
+
+Q: Which architectural changes (e.g., depth, number of units, bidirectionality, dilation) did you experiment with, and why?  
+A: Experiments included LSTM, GRU, and TCN architectures with variations in hidden size, number of layers, and dropout rates. For TCNs, different dilation factors were also tested to capture long-range dependencies. These changes were aimed at evaluating how recurrent vs. convolutional structures learn temporal demand patterns.
+
+Q: How did you decide on the final architecture for your deep learning model?  
+A: Configurations were compared on validation RMSE and R² in both scaled and original units. GRU and LSTM consistently yielded lower RMSE than TCN. The GRU-based setup was finalized due to stable training dynamics and stronger residual profiles.
+
+| config     | model     | orig_rmse  | orig_r2  |
+| ---------- | --------- | ---------- | -------- |
+| lb144_hr6  | GRUModel  | 612.06     | 0.9803   |
+| lb144_hr6  | LSTMModel | 630.34     | 0.9802   |
+| lb144_hr6  | TCNModel  | 1811.95    | 0.8280   |
+
+Q: What impact did these changes have on model performance and training stability?  
+A: Adding depth improved temporal representation but slowed convergence. Dropout and batch normalization stabilized deeper networks. GRUs converged faster and were less prone to gradient instability, while TCNs trained quickly but were less accurate.
+
+---
+
+### ⏸️ 2. Training Strategies & Regularization
+
+Q: How did you apply early stopping or learning rate scheduling during training?  
+A: Early stopping was used with patience on validation loss, and `ReduceLROnPlateau` was stepped once per epoch. StepLR was also applied for recurrent models, ensuring dynamic adjustment of learning rates based on validation performance.
+
+Q: What regularization techniques (e.g., Dropout, Batch Normalization) did you use, and how did they affect results?  
+A: Dropout was included in recurrent layers and convolutional blocks, and batch normalization was applied in TCNs. These reduced overfitting, improved generalization, and stabilized validation metrics.
+
+Q: How did you monitor and address overfitting or underfitting during optimization?  
+A: Training and validation curves were tracked alongside residual plots. Overfitting was countered with early stopping and dropout, while shallow underfitting cases were corrected by increasing hidden size or depth. Residual diagnostics confirmed generalization across all zones.
+
+---
+
+### 🧠 3. Model Interpretability
+
+Q: Which interpretability methods (e.g., SHAP, saliency maps, attention plots) did you use to understand your model’s predictions?  
+A: SHAP values and gradient-based saliency maps were applied. SHAP explained how weather features contributed over lookback windows, while saliency maps identified the timesteps and features most influential for forecasts.
+
+Q: What insights did you gain about feature importance or temporal dependencies from these methods?  
+A: Temperature and solar radiation were consistently the most influential features, particularly during peak load hours. Saliency confirmed that the most recent timesteps were critical to accurate predictions.
+
+Q: How did interpretability findings influence your modeling or feature engineering decisions?  
+A: Results validated the design of recent lag features and the prioritization of temperature and radiation as core drivers. These findings supported subsequent residual analysis and checkpoint selection.
+
+---
+
+### 📊 4. Error Analysis & Residuals
+
+Q: How did you analyze residuals and error distributions across different zones?  
+A: Predictions were aggregated and compared against validation targets. Global residual distributions, residuals vs. predictions, and per-target histograms were plotted. These checks ensured robust error diagnostics beyond RMSE.
+
+Q: Did you identify any systematic errors or biases in your model predictions? How did you address them?  
+A: Residuals were centered near zero, with slightly larger variance in Zone 3 under peak demand. This was mitigated by tuning hidden size in GRU models and applying early stopping to reduce bias toward Zone 1.
+
+Q: What steps did you take to ensure robust evaluation and fair comparison of model performance across different configurations?  
+A: Metrics were logged in both scaled and original units, best checkpoints per `(config, model)` were saved, and the leaderboard summarized RMSE and R². All results were tracked in MLflow, ensuring reproducibility and fair model comparison.
+
